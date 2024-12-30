@@ -13,22 +13,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   AuthBloc(super.initialState) {
-    // debugPrint("-----BLOC CONSTRUCT");
-    // debugPrint("-----BLOC CONSTRUCT ${_auth.currentUser}");
-    if (null != _auth.currentUser)
+    if (null != _auth.currentUser) {
       emit(AuthorizedState(_auth.currentUser!));
+    }
     on<LoginEvent>((event, emit) async {
-      // debugPrint("----BLOC ON LoginEmail ");
-      //  debugPrint("----BLOC ON LoginEmail email = ${event.email}");
       emit(LoadingAuthState());
-      _loginEmail(event.email, event.password);
+      try {
+        UserCredential userCredential = await _loginEmail(event.email, event.password);
+        emit(null != userCredential.user
+            ? AuthorizedState(userCredential.user!)
+            : AuthErrorState("user is NULL"));
+      } catch (e) {
+        print(e);
+        emit(AuthErrorState('$e'));
+      }
     });
 
     on<GoogleLoginEvent>((event, emit) async {
-      //debugPrint("----BLOC ON GoogleLogin ");
       emit(LoadingAuthState());
       if (null != _auth.currentUser) {
-       // debugPrint("-----GOGLE SIGNIN USER AUTH =${_auth.currentUser}");
       } else {
         await _signInGoogle();
       }
@@ -37,10 +40,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>((event, emit) async {
       emit(LoadingAuthState());
       await _auth.signOut().then((_) {
-        // debugPrint("-----SIGN OUT SUCCES");
         emit(InitAuthState());
       }).catchError((error) {
-        // debugPrint("-----SIGN OUT ERROR $error");
         emit(LogoutErrorState(error.toString()));
       });
     });
@@ -51,41 +52,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
   }
 
-  _loginEmail(String email, String password) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password).then((userCredential) {
-      emit(null != userCredential.user
-          ? AuthorizedState(userCredential.user!)
-          : AuthErrorState("user is NULL"));
-    }).catchError((error) {
-      //debugPrint("-----Bloc login CATCH ERROR");
-      emit(AuthErrorState('$error'));
-    });
-  }
+  _loginEmail(String email, String password) async =>
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
 
   _signInGoogle() async {
     GoogleSignIn().signIn().then((account) {
-      // debugPrint("-----Google SignIn succes");
       account?.authentication.then((auth) {
-        // debugPrint("-----Google SignIn Auth succes");
         final credential =
             GoogleAuthProvider.credential(accessToken: auth.accessToken, idToken: auth.idToken);
 
         FirebaseAuth.instance.signInWithCredential(credential).then((userCredential) {
-          //  debugPrint("----GoogleSignIn ALL SUCCES ${userCredential.user}");
-
           null != userCredential.user
               ? emit(AuthorizedState(userCredential.user!))
               : emit(AuthErrorState("user is NULL"));
         }).catchError((error) {
-          //debugPrint("----GoogleSignIn 3 $error");
           emit(AuthErrorState('$error'));
         });
       }).catchError((error) {
-        //debugPrint("----GoogleSignIn 2 $error");
         emit(AuthErrorState('$error'));
       });
     }).catchError((error) {
-     // debugPrint("----GoogleSignIn 1 $error");
       emit(AuthErrorState('$error'));
     });
   }
