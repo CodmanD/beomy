@@ -114,8 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _isPassVisible
                                   ? 'assets/icons/eye_icon.svg'
                                   : 'assets/icons/eye_off.svg',
-                              colorFilter:
-                                  ColorFilter.mode(ColorsApp.primary, BlendMode.srcIn),
+                              colorFilter: ColorFilter.mode(ColorsApp.primary, BlendMode.srcIn),
                             ),
                           ),
                         ),
@@ -132,37 +131,75 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 40),
-                      InkWell(
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            FocusScope.of(context).unfocus();
-                            context
-                                .read<AuthBloc>()
-                                .add(LoginEvent(_emailController.text, _passController.text));
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: ColorsApp.primary,
-                            borderRadius: BorderRadius.circular(24.0),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Login",
-                              // textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                // color: ColorsApp.secondary,
-                                fontSize: 20,
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () {
+                                if (_formKey.currentState!.validate()) {
+                                  FocusScope.of(context).unfocus();
+
+                                  context.read<AuthBloc>().add(
+                                      RegisterEvent(_emailController.text, _passController.text));
+                                }
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: ColorsApp.primary,
+                                  borderRadius: BorderRadius.circular(24.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Register",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                          SizedBox(
+                            width: 12,
+                          ),
+                          Flexible(
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () {
+                                if (_formKey.currentState!.validate()) {
+                                  FocusScope.of(context).unfocus();
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(LoginEvent(_emailController.text, _passController.text));
+                                }
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: ColorsApp.primary,
+                                  borderRadius: BorderRadius.circular(24.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,7 +274,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _passController.dispose();
     _emailController.dispose();
     super.dispose();

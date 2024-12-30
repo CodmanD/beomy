@@ -3,6 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -20,6 +21,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(LoadingAuthState());
       try {
         UserCredential userCredential = await _loginEmail(event.email, event.password);
+        emit(null != userCredential.user
+            ? AuthorizedState(userCredential.user!)
+            : AuthErrorState("user is NULL"));
+      } catch (e) {
+        print("-----$e");
+        emit(AuthErrorState('$e'));
+      }
+    });
+
+    on<RegisterEvent>((event, emit) async {
+      emit(LoadingAuthState());
+      try {
+        UserCredential userCredential = await _registration(event.email, event.password);
+        debugPrint("------userCred+$userCredential");
         emit(null != userCredential.user
             ? AuthorizedState(userCredential.user!)
             : AuthErrorState("user is NULL"));
@@ -51,6 +66,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       _loginFacebook();
     });
   }
+
+  _registration(String email, String password) async =>
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
 
   _loginEmail(String email, String password) async =>
       await _auth.signInWithEmailAndPassword(email: email, password: password);

@@ -6,10 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 @RoutePage()
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.user});
+
   final User user;
 
   @override
@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Text(
-            user.displayName ?? "Unknown name",
+            user.displayName ?? user.email ?? "Unknown name",
             style:
                 DefaultTextStyle.of(context).style.copyWith(color: ColorsApp.primary, fontSize: 18),
           ),
